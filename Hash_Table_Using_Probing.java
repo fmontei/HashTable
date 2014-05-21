@@ -9,7 +9,7 @@ public class Hash_Table_Using_Probing extends Hash_Table {
 
     @Override
     public void insertNewData(String newData, Bucket[] t) {
-        int index = hash(newData);
+        int index = generateIndexByHashing(newData);
         if (t[index].data == null)
             t[index].data = newData;
         else {
@@ -17,7 +17,7 @@ public class Hash_Table_Using_Probing extends Hash_Table {
             int duration = 0;
             Bucket curr = t[index];
             while (curr.data != null) {
-                if (duration >= BUCKET_SIZE) {
+                if (tooMuchTimeElapsed(duration)) {
                     resizeTable();
                 }
 
@@ -27,20 +27,18 @@ public class Hash_Table_Using_Probing extends Hash_Table {
             }
             curr.data = newData;
         }
-        size++;
+        incrementTableSize();
 
-        if (size == (BUCKET_SIZE / 2))
+        if (isTableTooFull())
             resizeTable();
     }
+
+    private boolean tooMuchTimeElapsed(int duration) { return duration >= BUCKET_SIZE; }
 
     @Override
     public void resizeTable() {
         final int oldSize = BUCKET_SIZE;
-        BUCKET_SIZE *= 2;
-        Bucket[] newTable = new Bucket[BUCKET_SIZE];
-        for (int i = 0; i < BUCKET_SIZE; i++) {
-            newTable[i] = new Bucket();
-        }
+        Bucket[] newTable = createNewTable();
 
         System.out.println("Resizing table. Previous size: " + oldSize +
                 ". New size: " + BUCKET_SIZE);

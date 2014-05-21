@@ -7,44 +7,39 @@ public class Hash_Table_Using_Chaining extends Hash_Table {
         super();
     }
 
-    public void insertNewData(String newData, Bucket[] t) {
-        int index = hash(newData);
-        if (t[index].data == null)
-            t[index].data = newData;
+    public void insertNewData(String newData, Bucket[] table) {
+        int index = generateIndexByHashing(newData);
+        if (table[index].data == null)
+            table[index].data = newData;
         else {
             collision++;
-            Bucket curr = t[index];
+            Bucket curr = table[index];
             while (curr.next != null) {
-                curr = curr.next;
+                curr = getNextBucket(curr);
             }
 
-            curr.next = new Bucket(newData);
+            createNewBucket(curr, newData);
         }
-        size++;
+        incrementTableSize();
 
-        if (size == (BUCKET_SIZE / 2))
+        if (isTableTooFull())
             resizeTable();
     }
 
     public void resizeTable() {
         final int oldSize = BUCKET_SIZE;
-        BUCKET_SIZE *= 2;
-        Bucket[] newTable = new Bucket[BUCKET_SIZE];
-        for (int i = 0; i < BUCKET_SIZE; i++) {
-            newTable[i] = new Bucket();
-        }
-
+        Bucket[] newTable = createNewTable(); // modifies BUCKET_SIZE
         System.out.println("Resizing table. Previous size: " + oldSize +
                 ". New size: " + BUCKET_SIZE);
-        size = 0;
-
+        size = 0; // restore size to zero b/c calling
+                  // calling insertNewData recomputes size
         for (int i = 0; i < oldSize; i++) {
             if (table[i].data != null) {
                 insertNewData(table[i].data, newTable);
                 if (table[i].next != null) {
                     Bucket curr = table[i];
                     while (curr.next != null) {
-                        curr = curr.next;
+                        curr = getNextBucket(curr);
                         insertNewData(curr.data, newTable);
                     }
                 }
