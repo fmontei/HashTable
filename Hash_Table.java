@@ -1,11 +1,13 @@
+import java.util.Scanner;
+
 /**
  * Created by Felipe on 5/15/2014.
  */
-public class Hash_Table {
+public abstract class Hash_Table {
 
     class Bucket {
-        private String data;
-        private Bucket next;
+        protected String data;
+        protected Bucket next;
 
         public Bucket() {
             data = null;
@@ -18,12 +20,10 @@ public class Hash_Table {
         }
     }
 
-    private final static String CHAINING_METHOD = "Chaining";
-    private final static String PROBING_METHOD = "Probing";
-    private static int BUCKET_SIZE = 1000;
-    private Bucket[] table;
-    private int size;
-    private int collision;
+    protected static int BUCKET_SIZE = 1000;
+    protected Bucket[] table;
+    protected int size;
+    protected int collision;
 
     public Hash_Table() {
         collision = size = 0;
@@ -40,91 +40,8 @@ public class Hash_Table {
         return (int) (hash % BUCKET_SIZE);
     }
 
-    public void insert_using_chaining(String newData, Bucket[] t) {
-        int index = hash(newData);
-        if (t[index].data == null)
-            t[index].data = newData;
-        else {
-            collision++;
-            Bucket curr = t[index];
-            while (curr.next != null) {
-                curr = curr.next;
-            }
-
-            curr.next = new Bucket(newData);
-        }
-        size++;
-
-        if (size == (BUCKET_SIZE / 2))
-            resize(CHAINING_METHOD);
-    }
-
-    public void insert_using_probing(String newData, Bucket[] t) {
-        int index = hash(newData);
-        if (t[index].data == null)
-            t[index].data = newData;
-        else {
-            collision++;
-            int duration = 0;
-            Bucket curr = t[index];
-            while (curr.data != null) {
-                if (duration >= BUCKET_SIZE) {
-                    resize(PROBING_METHOD);
-                }
-
-                index = (index + 1) % BUCKET_SIZE;
-                curr = t[index];
-                duration++;
-            }
-            curr.data = newData;
-        }
-        size++;
-
-        if (size == (BUCKET_SIZE / 2))
-            resize(PROBING_METHOD);
-    }
-
-    public void resize(final String method) {
-        final int oldSize = BUCKET_SIZE;
-        BUCKET_SIZE *= 2;
-        Bucket[] newTable = new Bucket[BUCKET_SIZE];
-        for (int i = 0; i < BUCKET_SIZE; i++) {
-            newTable[i] = new Bucket();
-        }
-
-        System.out.println("Resizing table. Previous size: " + oldSize +
-                ". New size: " + BUCKET_SIZE);
-        size = 0;
-
-        switch(method.toLowerCase().charAt(0)) {
-            case 'c':
-                for (int i = 0; i < oldSize; i++) {
-                    if (table[i].data != null) {
-                        insert_using_chaining(table[i].data, newTable);
-                        if (table[i].next != null) {
-                            Bucket curr = table[i];
-                            while (curr.next != null) {
-                                curr = curr.next;
-                                insert_using_chaining(curr.data, newTable);
-                            }
-                        }
-                    }
-                }
-                break;
-            case 'p':
-                for (int i = 0; i < oldSize; i++) {
-                    if (table[i].data != null) {
-                        insert_using_probing(table[i].data, newTable);
-                    }
-                }
-                break;
-            default:
-                System.out.println("Unrecognized argument to method resize()");
-                System.exit(1);
-        }
-        table = null;
-        table = newTable;
-    }
+    public abstract void insertNewData(String newData, Bucket[] t);
+    public abstract void resizeTable();
 
     public void print() {
         System.out.println("Printing contents of hash table:");
@@ -156,12 +73,12 @@ public class Hash_Table {
     }
 
     public static void main(String[] args) {
-        Hash_Table hashTable = new Hash_Table();
+        Hash_Table hashTable1 = new Hash_Table_Using_Chaining();
+        //Hash_Table hashTable2 = new Hash_Table_Using_Probing();
 
         for (int i = 0; i < 50000; i++) {
-            //hashTable.insert_using_probing(hashTable.getRandString(), hashTable.getTable());
-            hashTable.insert_using_chaining(hashTable.getRandString(), hashTable.getTable());
+            hashTable1.insertNewData(hashTable1.getRandString(), hashTable1.getTable());
         }
-        hashTable.print();
+        hashTable1.print();
     }
 }
