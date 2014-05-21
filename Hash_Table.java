@@ -20,7 +20,7 @@ public abstract class Hash_Table {
         }
     }
 
-    protected static int BUCKET_SIZE = 1000;
+    protected int BUCKET_SIZE = 1000;
     protected Bucket[] table;
     protected int size;
     protected int collision;
@@ -74,11 +74,18 @@ public abstract class Hash_Table {
 
     public static void main(String[] args) {
         Hash_Table hashTable1 = new Hash_Table_Using_Chaining();
-        //Hash_Table hashTable2 = new Hash_Table_Using_Probing();
+        Hash_Table hashTable2 = new Hash_Table_Using_Probing();
 
         for (int i = 0; i < 50000; i++) {
             hashTable1.insertNewData(hashTable1.getRandString(), hashTable1.getTable());
+            hashTable2.insertNewData(hashTable2.getRandString(), hashTable2.getTable());
         }
         hashTable1.print();
+
+        System.out.println("\nPress ENTER to continue.");
+        Scanner waitForInput = new Scanner(System.in);
+        waitForInput.nextLine();
+
+        hashTable2.print();
     }
 }
